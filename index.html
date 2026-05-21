@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Knowing Framework</title>
+<style>
+/* ── Local fonts (loaded by setup.sh) ── */
+@font-face {
+  font-family: 'Cormorant';
+  src: url('fonts/Cormorant-Light.woff2') format('woff2');
+  font-weight: 300; font-style: normal;
+}
+@font-face {
+  font-family: 'Cormorant';
+  src: url('fonts/Cormorant-Regular.woff2') format('woff2');
+  font-weight: 400; font-style: normal;
+}
+@font-face {
+  font-family: 'Cormorant';
+  src: url('fonts/Cormorant-LightItalic.woff2') format('woff2');
+  font-weight: 300; font-style: italic;
+}
+@font-face {
+  font-family: 'Cormorant';
+  src: url('fonts/Cormorant-Italic.woff2') format('woff2');
+  font-weight: 400; font-style: italic;
+}
+@font-face {
+  font-family: 'Raleway';
+  src: url('fonts/Raleway-Light.woff2') format('woff2');
+  font-weight: 300; font-style: normal;
+}
+@font-face {
+  font-family: 'Raleway';
+  src: url('fonts/Raleway-Regular.woff2') format('woff2');
+  font-weight: 400; font-style: normal;
+}
+
+/* ── Fallback: if fonts/folder missing, pull from Google ── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=Raleway:wght@300;400&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #0e1310;
+  font-family: 'Cormorant', Georgia, serif;
+  overflow: hidden;
+}
+
+.frame {
+  width: 100vw; height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+.stage {
+  flex: 1; position: relative; overflow: hidden;
+  perspective: 900px; perspective-origin: 50% 50%;
+}
+
+/* ── Backgrounds ── */
+.bg { position: absolute; inset: 0; transition: background 0.6s ease; }
+.bg-eggshell { background: #F4F1F1; }
+.bg-forest   { background: #3E4F45; }
+.bg-deep     { background: #0e1310; }
+
+/* ── Watermark ── */
+.wm {
+  position: absolute;
+  font-family: 'Cormorant', Georgia, serif;
+  font-weight: 300; line-height: 1;
+  pointer-events: none; user-select: none;
+  right: -2%; bottom: -8%; font-size: 60vw;
+  transition: color 0.6s;
+}
+.wm-lt { color: rgba(62,79,69,0.05); }
+.wm-dk { color: rgba(206,173,120,0.05); }
+
+/* ── Slide label ── */
+.tag {
+  position: absolute; top: 4%; left: 5%;
+  font-family: 'Raleway', sans-serif; font-weight: 300;
+  font-size: clamp(8px, 0.9vw, 12px); letter-spacing: .28em;
+  text-transform: uppercase; z-index: 20; transition: color 0.4s;
+}
+.tag-lt { color: #3E4F45; }
+.tag-dk { color: rgba(206,173,120,0.7); }
+
+/* ── Slide number ── */
+.slide-num {
+  position: absolute; bottom: 4%; right: 5%;
+  font-family: 'Raleway', sans-serif; font-weight: 300;
+  font-size: clamp(7px, 0.75vw, 10px); letter-spacing: .2em; z-index: 20;
+  transition: color 0.4s;
+}
+.slide-num-lt { color: rgba(62,79,69,0.4); }
+.slide-num-dk { color: rgba(206,173,120,0.3); }
+
+/* ── All slides hidden by default ── */
+.slide { position: absolute; inset: 0; display: none; }
+.slide.active { display: flex; }
+
+/* ══════════════════ SLIDE 1 — 4 Intelligences ══════════════════ */
+.intel-row {
+  display: flex; width: 88%; height: 58%; align-self: center; margin: auto;
+}
+.intel-col {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-right: 1px solid rgba(206,173,120,0.22); padding: 2%;
+}
+.intel-col:last-child { border-right: none; }
+.intel-num {
+  font-size: clamp(10px,1.6vw,20px);
+  color: rgba(206,173,120,0.35); font-weight: 300; margin-bottom: 10%;
+}
+.intel-name { font-size: clamp(14px,2.2vw,32px); color: #3E4F45; letter-spacing: .06em; }
+.intel-rule { width: 24px; height: 1px; background: #CEAD78; margin: 8% auto; opacity: .5; }
+.intel-sub {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(7px,0.7vw,10px); color: rgba(62,79,69,.45);
+  letter-spacing: .18em; text-transform: uppercase;
+}
+
+/* ══════════════════ SLIDE 2 — Full Grid ══════════════════ */
+.grid2d { width: 86%; height: 70%; display: flex; flex-direction: column; }
+.grid2d-os { display: flex; padding-left: 20%; margin-bottom: 1.5%; }
+.grid2d-os-lbl {
+  flex: 1; text-align: center;
+  font-size: clamp(10px,1.3vw,18px); color: #3E4F45; letter-spacing: .06em;
+}
+.grid2d-body { display: flex; flex: 1; }
+.grid2d-i-lbls {
+  width: 20%; display: flex; flex-direction: column;
+  border-right: 1px solid rgba(206,173,120,.32);
+}
+.grid2d-i-lbl {
+  flex: 1; display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 5%; font-size: clamp(9px,1.2vw,17px); color: #3E4F45; letter-spacing: .04em;
+}
+.grid2d-cells {
+  flex: 1; display: grid;
+  grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(4,1fr);
+  border: 1px solid rgba(206,173,120,.28); border-left: none;
+}
+.g-cell {
+  border-right: 1px solid rgba(206,173,120,.15);
+  border-bottom: 1px solid rgba(206,173,120,.15);
+  display: flex; align-items: center; justify-content: center;
+}
+.g-cell:nth-child(3n) { border-right: none; }
+.g-cell:nth-last-child(-n+3) { border-bottom: none; }
+.g-dot { width:4px;height:4px;border-radius:50%;background:rgba(62,79,69,.3); }
+
+/* ══════════════════ SLIDES 3–6 — Intelligence Focus ══════════════════ */
+.ifl-num {
+  position: absolute;
+  font-size: clamp(80px,22vw,280px); color: rgba(206,173,120,.07);
+  font-weight: 300; line-height: 1; left: 50%; top: 50%;
+  transform: translate(-50%,-50%); pointer-events: none;
+}
+.ifl-inner { text-align: center; position: relative; z-index: 2; }
+.ifl-title { font-size: clamp(28px,6vw,80px); color: #F4F1F1; font-weight: 300; letter-spacing: .08em; }
+.ifl-title em { font-style: italic; color: #CEAD78; }
+.ifl-line { width: 48px; height: 1px; background: #CEAD78; margin: 5% auto; opacity: .6; }
+.ifl-sub {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(7px,.85vw,11px); color: rgba(244,241,241,.42);
+  letter-spacing: .22em; text-transform: uppercase;
+}
+.ifl-pills { display: flex; gap: 2%; margin-top: 8%; }
+.ifl-pill {
+  flex: 1; border: 1px solid rgba(206,173,120,.22); padding: 3% 2%;
+  text-align: center; font-size: clamp(8px,1.1vw,15px);
+  color: rgba(244,241,241,.5); letter-spacing: .06em;
+}
+
+/* ══════════════════ SLIDES 7–9 — OS ══════════════════ */
+.os-slide { flex-direction: row; }
+.os-left {
+  width: 38%; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8%; border-right: 1px solid rgba(206,173,120,.16);
+}
+.os-title {
+  font-size: clamp(22px,4.8vw,62px); color: #F4F1F1;
+  font-weight: 300; letter-spacing: .05em; text-align: center; line-height: 1.2;
+}
+.os-title em { font-style: italic; color: #CEAD78; }
+.os-rule { width: 36px; height: 1px; background: #CEAD78; margin: 8% 0; opacity: .5; }
+.os-q {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(7px,.72vw,10px); color: rgba(244,241,241,.32);
+  letter-spacing: .2em; text-transform: uppercase; text-align: center;
+}
+.os-right {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center; padding: 6%; gap: 2.5%;
+}
+.os-row {
+  display: flex; align-items: center; gap: 4%;
+  padding: 3% 4%; border: 1px solid rgba(206,173,120,.12); transition: background .2s;
+}
+.os-row:hover { background: rgba(206,173,120,.05); }
+.os-row-name {
+  font-size: clamp(10px,1.4vw,20px); color: #F4F1F1;
+  font-weight: 300; width: 30%; letter-spacing: .04em;
+}
+.os-row-dot { width:5px;height:5px;border-radius:50%;background:#CEAD78;opacity:.32;flex-shrink:0; }
+.os-row-q {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(7px,.72vw,10px); color: rgba(244,241,241,.28); letter-spacing: .1em;
+}
+
+/* ══════════════════ SLIDE 10 — 3D Prism ══════════════════ */
+.prism3d-wrap {
+  position: relative; z-index: 2; width: 78%; height: 72%;
+  transform-style: preserve-3d;
+}
+.prism3d-wrap.animate {
+  animation: prismReveal 1.8s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes prismReveal {
+  0%   { transform: rotateX(0deg) rotateY(0deg); }
+  100% { transform: rotateX(10deg) rotateY(-16deg); }
+}
+.prism-face { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.prism-os-lbls { display: flex; padding-left: 22%; margin-bottom: 2%; }
+.prism-os-lbl {
+  flex: 1; text-align: center; font-size: clamp(9px,1.15vw,16px);
+  color: #F4F1F1; letter-spacing: .08em;
+}
+.prism-body { display: flex; flex: 1; }
+.prism-i-lbls {
+  width: 22%; display: flex; flex-direction: column;
+  border-right: 1px solid rgba(206,173,120,.32);
+}
+.prism-i-lbl {
+  flex: 1; display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 4%; font-size: clamp(8px,1.05vw,15px);
+  color: rgba(244,241,241,.68); letter-spacing: .04em; text-align: right;
+}
+.prism-cells {
+  flex: 1; display: grid;
+  grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(4,1fr);
+  border: 1px solid rgba(206,173,120,.28); border-left: none;
+}
+.p-cell {
+  border-right: 1px solid rgba(206,173,120,.14);
+  border-bottom: 1px solid rgba(206,173,120,.14);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 2%;
+  cursor: default; transition: background .2s;
+}
+.p-cell:hover { background: rgba(206,173,120,.09); }
+.p-cell:nth-child(3n) { border-right: none; }
+.p-cell:nth-last-child(-n+3) { border-bottom: none; }
+.p-cell-lbl {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(5px,.52vw,8px); color: rgba(244,241,241,.28);
+  letter-spacing: .1em; text-transform: uppercase; text-align: center; line-height: 1.5;
+}
+.prism-side {
+  position: absolute; top: 0; right: -28px; width: 28px; height: 100%;
+  background: rgba(62,79,69,.22); border: 1px solid rgba(206,173,120,.18);
+  transform-origin: left center; transform: rotateY(90deg);
+}
+.prism-bottom {
+  position: absolute; bottom: -18px; left: 0; width: 100%; height: 18px;
+  background: rgba(62,79,69,.18); border: 1px solid rgba(206,173,120,.14);
+  transform-origin: top center; transform: rotateX(-90deg);
+}
+
+/* ══════════════════ SLIDE 11 — Powering Force ══════════════════ */
+.pf-grid {
+  width: 32%; height: 100%; display: grid;
+  grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(4,1fr);
+  border-right: 1px solid rgba(206,173,120,.28); background: rgba(62,79,69,.08);
+}
+.pf-cell {
+  border-right: 1px solid rgba(206,173,120,.13);
+  border-bottom: 1px solid rgba(206,173,120,.13);
+}
+.pf-cell:nth-child(3n) { border-right: none; }
+.pf-cell:nth-last-child(-n+3) { border-bottom: none; }
+.pf-corridor {
+  flex: 1; position: relative;
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.pf-ring {
+  position: absolute; border: 1px solid rgba(206,173,120,0.16);
+  border-radius: 3px; animation: pfPulse 3s ease-in-out infinite;
+}
+@keyframes pfPulse { 0%,100%{opacity:.16;} 50%{opacity:.32;} }
+.pf-text { text-align: center; position: relative; z-index: 5; }
+.pf-text h2 {
+  font-family: 'Cormorant', Georgia, serif;
+  font-size: clamp(18px,3vw,44px); color: #CEAD78;
+  font-weight: 300; font-style: italic; letter-spacing: .14em;
+}
+.pf-text p {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(6px,.68vw,9px); color: rgba(206,173,120,.42);
+  letter-spacing: .28em; text-transform: uppercase; margin-top: 8px;
+}
+
+/* ══════════════════ SLIDE 12 — Belief Corridor ══════════════════ */
+.b-scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.b-layer {
+  position: absolute; border: 1px solid rgba(206,173,120,.22);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 2% 3%; text-align: center;
+}
+.b-lbl {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(5px,.62vw,9px); color: rgba(206,173,120,.48);
+  letter-spacing: .2em; text-transform: uppercase; margin-bottom: 8%;
+}
+.b-title {
+  font-size: clamp(11px,1.8vw,26px); color: #F4F1F1;
+  font-weight: 300; letter-spacing: .06em; line-height: 1.3;
+}
+.b-title em { font-style: italic; color: #CEAD78; }
+.b-sub {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(5px,.58vw,8px); color: rgba(244,241,241,.26);
+  margin-top: 8%; line-height: 1.65;
+}
+.b-glow {
+  position: absolute; top: 50%; right: 6%; transform: translateY(-50%);
+  width: 8px; height: 8px; border-radius: 50%; background: #CEAD78;
+  box-shadow: 0 0 20px 8px rgba(206,173,120,.4), 0 0 60px 24px rgba(206,173,120,.16);
+  animation: glowPulse 3s ease-in-out infinite;
+}
+@keyframes glowPulse {
+  0%,100%{box-shadow:0 0 20px 8px rgba(206,173,120,.4),0 0 60px 24px rgba(206,173,120,.16);}
+  50%{box-shadow:0 0 30px 12px rgba(206,173,120,.6),0 0 80px 32px rgba(206,173,120,.28);}
+}
+.b-connector { position: absolute; top: 50%; height: 1px; background: rgba(206,173,120,.13); }
+.frankl {
+  position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%);
+  text-align: center; width: 85%; z-index: 20;
+}
+.frankl p {
+  font-family: 'Cormorant', Georgia, serif;
+  font-size: clamp(9px,1vw,14px); font-style: italic;
+  color: rgba(206,173,120,.36); letter-spacing: .04em;
+}
+
+/* ══════════════════ SLIDE 13 — Genesis ══════════════════ */
+.gen-ring {
+  position: absolute; border: 1px solid rgba(206,173,120,.1); border-radius: 4px;
+  animation: genPulse 4s ease-in-out infinite;
+}
+@keyframes genPulse { 0%,100%{opacity:.1;} 50%{opacity:.22;} }
+.gen-center {
+  position: relative; z-index: 10; text-align: center;
+  display: flex; flex-direction: column; align-items: center;
+}
+.gen-glow {
+  width: 8px; height: 8px; border-radius: 50%; background: #CEAD78;
+  box-shadow: 0 0 24px 8px rgba(206,173,120,.45), 0 0 70px 24px rgba(206,173,120,.2);
+  margin: 0 auto 5% auto; animation: glowPulse 3s ease-in-out infinite;
+}
+.gen-title { font-size: clamp(26px,5.5vw,72px); color: #F4F1F1; font-weight: 300; letter-spacing: .1em; }
+.gen-title em { font-style: italic; color: #CEAD78; }
+.gen-rule { width: 44px; height: 1px; background: #CEAD78; opacity: .5; margin: 4% auto; }
+.gen-sub {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(7px,.82vw,11px); color: rgba(244,241,241,.32);
+  letter-spacing: .22em; text-transform: uppercase;
+}
+.gen-quote {
+  margin-top: 6%; font-size: clamp(9px,1.05vw,14px); font-style: italic;
+  color: rgba(206,173,120,.38); letter-spacing: .03em; max-width: 70%; text-align: center;
+}
+
+/* ══════════════════ SLIDE 14 — Ideal Grid ══════════════════ */
+.ideal-scene { width: 90%; height: 78%; display: flex; align-items: center; gap: 0; }
+.ideal-half { flex: 1; height: 100%; display: flex; flex-direction: column; padding: 0 3%; }
+.ideal-half-lbl {
+  font-family: 'Raleway', sans-serif;
+  font-size: clamp(6px,.68vw,9px); letter-spacing: .24em; text-transform: uppercase;
+  margin-bottom: 4%; text-align: center;
+}
+.ideal-half-left .ideal-half-lbl { color: rgba(244,241,241,.28); }
+.ideal-half-right .ideal-half-lbl { color: #CEAD78; }
+.ideal-half-title {
+  font-size: clamp(12px,2.1vw,28px); font-weight: 300;
+  text-align: center; margin-bottom: 5%; letter-spacing: .05em;
+}
+.ideal-half-left .ideal-half-title  { color: rgba(244,241,241,.32); }
+.ideal-half-right .ideal-half-title { color: #F4F1F1; }
+.ideal-half-right .ideal-half-title em { font-style: italic; color: #CEAD78; }
+.mini-g {
+  flex: 1; display: grid;
+  grid-template-columns: repeat(3,1fr); grid-template-rows: repeat(4,1fr);
+  border: 1px solid rgba(206,173,120,.14);
+}
+.ideal-half-right .mini-g {
+  border-color: rgba(206,173,120,.35);
+  animation: idealReveal 1.4s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes idealReveal {
+  0%  {transform:rotateY(35deg);opacity:0;}
+  100%{transform:rotateY(0deg);opacity:1;}
+}
+.m-cell {
+  border-right: 1px solid rgba(206,173,120,.1);
+  border-bottom: 1px solid rgba(206,173,120,.1);
+  display: flex; align-items: center; justify-content: center;
+}
+.ideal-half-right .m-cell { border-right-color:rgba(206,173,120,.2); border-bottom-color:rgba(206,173,120,.2); }
+.m-cell:nth-child(3n) { border-right: none; }
+.m-cell:nth-last-child(-n+3) { border-bottom: none; }
+.m-dot { width:3px;height:3px;border-radius:50%; }
+.ideal-half-left  .m-dot { background: rgba(244,241,241,.14); }
+.ideal-half-right .m-dot { background: #CEAD78; opacity: .62; }
+.ideal-div {
+  width: 1px; height: 100%; background: rgba(206,173,120,.2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; position: relative;
+}
+.ideal-arrow {
+  width: 30px; height: 30px; border: 1px solid rgba(206,173,120,.4);
+  border-radius: 50%; background: #0e1310;
+  display: flex; align-items: center; justify-content: center;
+  color: #CEAD78; font-size: 15px; z-index: 2;
+}
+
+/* ══ NAV BAR ══ */
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 20px; background: #080c0a; flex-shrink: 0;
+}
+.nbtn {
+  background: none; border: 1px solid rgba(206,173,120,.28); color: #CEAD78;
+  padding: 6px 18px; font-family: 'Raleway', sans-serif;
+  font-size: 11px; font-weight: 300; letter-spacing: .16em; text-transform: uppercase;
+  cursor: pointer; border-radius: 2px; transition: all .2s;
+}
+.nbtn:hover  { background: rgba(206,173,120,.1); }
+.nbtn:disabled { opacity: .2; cursor: default; }
+.ndots { display: flex; gap: 6px; align-items: center; }
+.ndot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: rgba(206,173,120,.2); transition: all .25s; cursor: pointer;
+}
+.ndot.on { background: #CEAD78; width: 16px; border-radius: 3px; }
+.ninfo { font-family: 'Raleway', sans-serif; font-size: 10px; color: rgba(206,173,120,.32); letter-spacing: .14em; min-width: 60px; }
+.nname { text-align: left; }
+.ncnt  { text-align: right; }
+.hint {
+  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+  font-family: 'Raleway', sans-serif; font-size: 9px;
+  color: rgba(206,173,120,.18); letter-spacing: .15em; padding-bottom: 2px; pointer-events: none;
+}
+</style>
+</head>
+<body>
+<div class="frame">
+<div class="stage">
+
+  <div class="bg bg-eggshell" id="bg"></div>
+  <div class="wm wm-lt" id="wm">K</div>
+  <div class="tag tag-lt" id="tag">The Grid — The Four Intelligences</div>
+  <div class="slide-num slide-num-lt" id="snum">01 / 14</div>
+
+  <!-- S1: 4 Intelligences -->
+  <div class="slide active" id="s1" style="align-items:center;justify-content:center;">
+    <div class="intel-row">
+      <div class="intel-col"><div class="intel-num">01</div><div class="intel-name">Intellectual</div><div class="intel-rule"></div><div class="intel-sub">Mind</div></div>
+      <div class="intel-col"><div class="intel-num">02</div><div class="intel-name">Emotional</div><div class="intel-rule"></div><div class="intel-sub">Heart</div></div>
+      <div class="intel-col"><div class="intel-num">03</div><div class="intel-name">Spiritual</div><div class="intel-rule"></div><div class="intel-sub">Soul</div></div>
+      <div class="intel-col"><div class="intel-num">04</div><div class="intel-name">Physical</div><div class="intel-rule"></div><div class="intel-sub">Body</div></div>
+    </div>
+  </div>
+
+  <!-- S2: Full Grid -->
+  <div class="slide" id="s2" style="align-items:center;justify-content:center;">
+    <div class="grid2d">
+      <div class="grid2d-os">
+        <div class="grid2d-os-lbl">Target</div>
+        <div class="grid2d-os-lbl">Values</div>
+        <div class="grid2d-os-lbl">How To Get There</div>
+      </div>
+      <div class="grid2d-body">
+        <div class="grid2d-i-lbls">
+          <div class="grid2d-i-lbl">Intellectual</div>
+          <div class="grid2d-i-lbl">Emotional</div>
+          <div class="grid2d-i-lbl">Spiritual</div>
+          <div class="grid2d-i-lbl">Physical</div>
+        </div>
+        <div class="grid2d-cells">
+          <div class="g-cell"><div class="g-dot"></div></div><div class="g-cell"><div class="g-dot"></div></div><div class="g-cell"><div class="g-dot"></div></div>
+          <div class="g-cell"><div class="g-dot"></div></div><div class="g-cell"><div class="g-dot"></div></div><div class="g-cell"><div class="g-dot"></div></div>
+          <div class="g-cell"><div class="g-dot"></div></div><div class="g-cell"><div class="g-dot"></div></div><div class="g-cell"><div class="g-dot"></div></div>
+          <div class="g-cell"><div class="g-dot"></div></div><div class="g-cell"><div class="g-dot"></div></div><div class="g-cell"><div class="g-dot"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3–S6: Individual Intelligences -->
+  <div class="slide" id="s3" style="align-items:center;justify-content:center;">
+    <div class="ifl-num">01</div>
+    <div class="ifl-inner"><div class="ifl-title"><em>Intellectual</em></div><div class="ifl-line"></div><div class="ifl-sub">The Mind</div><div class="ifl-pills"><div class="ifl-pill">Target</div><div class="ifl-pill">Values</div><div class="ifl-pill">How To Get There</div></div></div>
+  </div>
+  <div class="slide" id="s4" style="align-items:center;justify-content:center;">
+    <div class="ifl-num">02</div>
+    <div class="ifl-inner"><div class="ifl-title"><em>Emotional</em></div><div class="ifl-line"></div><div class="ifl-sub">The Heart</div><div class="ifl-pills"><div class="ifl-pill">Target</div><div class="ifl-pill">Values</div><div class="ifl-pill">How To Get There</div></div></div>
+  </div>
+  <div class="slide" id="s5" style="align-items:center;justify-content:center;">
+    <div class="ifl-num">03</div>
+    <div class="ifl-inner"><div class="ifl-title"><em>Spiritual</em></div><div class="ifl-line"></div><div class="ifl-sub">The Soul</div><div class="ifl-pills"><div class="ifl-pill">Target</div><div class="ifl-pill">Values</div><div class="ifl-pill">How To Get There</div></div></div>
+  </div>
+  <div class="slide" id="s6" style="align-items:center;justify-content:center;">
+    <div class="ifl-num">04</div>
+    <div class="ifl-inner"><div class="ifl-title"><em>Physical</em></div><div class="ifl-line"></div><div class="ifl-sub">The Body</div><div class="ifl-pills"><div class="ifl-pill">Target</div><div class="ifl-pill">Values</div><div class="ifl-pill">How To Get There</div></div></div>
+  </div>
+
+  <!-- S7–S9: OS -->
+  <div class="slide os-slide" id="s7">
+    <div class="os-left"><div class="os-title"><em>Target</em></div><div class="os-rule"></div><div class="os-q">Where are you going?</div></div>
+    <div class="os-right">
+      <div class="os-row"><div class="os-row-name">Intellectual</div><div class="os-row-dot"></div><div class="os-row-q">What is your intellectual target?</div></div>
+      <div class="os-row"><div class="os-row-name">Emotional</div><div class="os-row-dot"></div><div class="os-row-q">What is your emotional target?</div></div>
+      <div class="os-row"><div class="os-row-name">Spiritual</div><div class="os-row-dot"></div><div class="os-row-q">What is your spiritual target?</div></div>
+      <div class="os-row"><div class="os-row-name">Physical</div><div class="os-row-dot"></div><div class="os-row-q">What is your physical target?</div></div>
+    </div>
+  </div>
+  <div class="slide os-slide" id="s8">
+    <div class="os-left"><div class="os-title"><em>Values</em></div><div class="os-rule"></div><div class="os-q">What guides you?</div></div>
+    <div class="os-right">
+      <div class="os-row"><div class="os-row-name">Intellectual</div><div class="os-row-dot"></div><div class="os-row-q">What do you value intellectually?</div></div>
+      <div class="os-row"><div class="os-row-name">Emotional</div><div class="os-row-dot"></div><div class="os-row-q">What do you value emotionally?</div></div>
+      <div class="os-row"><div class="os-row-name">Spiritual</div><div class="os-row-dot"></div><div class="os-row-q">What do you value spiritually?</div></div>
+      <div class="os-row"><div class="os-row-name">Physical</div><div class="os-row-dot"></div><div class="os-row-q">What do you value physically?</div></div>
+    </div>
+  </div>
+  <div class="slide os-slide" id="s9">
+    <div class="os-left"><div class="os-title" style="font-size:clamp(18px,3.4vw,44px);"><em>How To</em><br>Get There</div><div class="os-rule"></div><div class="os-q">What is your strategy?</div></div>
+    <div class="os-right">
+      <div class="os-row"><div class="os-row-name">Intellectual</div><div class="os-row-dot"></div><div class="os-row-q">How will you grow intellectually?</div></div>
+      <div class="os-row"><div class="os-row-name">Emotional</div><div class="os-row-dot"></div><div class="os-row-q">How will you develop emotionally?</div></div>
+      <div class="os-row"><div class="os-row-name">Spiritual</div><div class="os-row-dot"></div><div class="os-row-q">How will you deepen spiritually?</div></div>
+      <div class="os-row"><div class="os-row-name">Physical</div><div class="os-row-dot"></div><div class="os-row-q">How will you strengthen physically?</div></div>
+    </div>
+  </div>
+
+  <!-- S10: 3D Prism -->
+  <div class="slide" id="s10" style="align-items:center;justify-content:center;">
+    <div class="prism3d-wrap" id="prism3d">
+      <div class="prism-face">
+        <div class="prism-os-lbls">
+          <div class="prism-os-lbl">Target</div><div class="prism-os-lbl">Values</div><div class="prism-os-lbl">How To Get There</div>
+        </div>
+        <div class="prism-body">
+          <div class="prism-i-lbls">
+            <div class="prism-i-lbl">Intellectual</div><div class="prism-i-lbl">Emotional</div>
+            <div class="prism-i-lbl">Spiritual</div><div class="prism-i-lbl">Physical</div>
+          </div>
+          <div class="prism-cells">
+            <div class="p-cell"><div class="p-cell-lbl">Intellectual<br>Target</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Intellectual<br>Values</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Intellectual<br>Path</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Emotional<br>Target</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Emotional<br>Values</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Emotional<br>Path</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Spiritual<br>Target</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Spiritual<br>Values</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Spiritual<br>Path</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Physical<br>Target</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Physical<br>Values</div></div>
+            <div class="p-cell"><div class="p-cell-lbl">Physical<br>Path</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="prism-side"></div>
+      <div class="prism-bottom"></div>
+    </div>
+  </div>
+
+  <!-- S11: Powering Force -->
+  <div class="slide" id="s11" style="flex-direction:row;">
+    <div class="pf-grid">
+      <div class="pf-cell"></div><div class="pf-cell"></div><div class="pf-cell"></div>
+      <div class="pf-cell"></div><div class="pf-cell"></div><div class="pf-cell"></div>
+      <div class="pf-cell"></div><div class="pf-cell"></div><div class="pf-cell"></div>
+      <div class="pf-cell"></div><div class="pf-cell"></div><div class="pf-cell"></div>
+    </div>
+    <div class="pf-corridor">
+      <div class="pf-ring" style="width:94%;height:92%;top:4%;left:3%;animation-delay:0s;"></div>
+      <div class="pf-ring" style="width:78%;height:76%;top:12%;left:11%;animation-delay:.5s;"></div>
+      <div class="pf-ring" style="width:62%;height:60%;top:20%;left:19%;animation-delay:1s;"></div>
+      <div class="pf-ring" style="width:46%;height:44%;top:28%;left:27%;animation-delay:1.5s;"></div>
+      <div class="pf-ring" style="width:30%;height:28%;top:36%;left:35%;animation-delay:2s;"></div>
+      <div class="pf-ring" style="width:16%;height:14%;top:43%;left:42%;animation-delay:2.5s;"></div>
+      <div class="pf-text"><h2>Love &nbsp;/&nbsp; Fear</h2><p>The Powering Force</p></div>
+    </div>
+  </div>
+
+  <!-- S12: Belief Corridor -->
+  <div class="slide" id="s12" style="align-items:center;justify-content:center;">
+    <div class="b-scene">
+      <div class="b-layer" style="width:18%;height:72%;left:3%;top:14%;border-color:rgba(206,173,120,.18);">
+        <div class="b-lbl">The Grid</div><div class="b-title">Current<br><em>Reality</em></div>
+        <div class="b-sub">Your subconscious<br>operating system</div>
+      </div>
+      <div class="b-connector" style="left:21%;width:3%;"></div>
+      <div class="b-layer" style="width:18%;height:62%;left:24%;top:19%;border-color:rgba(206,173,120,.24);">
+        <div class="b-lbl">Powering Force</div><div class="b-title"><em>Love</em><br>or Fear</div>
+        <div class="b-sub">The energy behind<br>every decision</div>
+      </div>
+      <div class="b-connector" style="left:42%;width:3%;"></div>
+      <div class="b-layer" style="width:18%;height:52%;left:45%;top:24%;border-color:rgba(206,173,120,.32);">
+        <div class="b-lbl">The Belief</div><div class="b-title">The<br><em>Lens</em></div>
+        <div class="b-sub">Between stimulus<br>and response</div>
+      </div>
+      <div class="b-connector" style="left:63%;width:3%;"></div>
+      <div class="b-layer" style="width:18%;height:42%;left:66%;top:29%;border-color:#CEAD78;background:rgba(206,173,120,.04);">
+        <div class="b-lbl" style="color:#CEAD78;">Genesis Story</div>
+        <div class="b-title" style="color:#CEAD78;">The<br><em>Origin</em></div>
+        <div class="b-sub" style="color:rgba(206,173,120,.42);">The root moment.<br>Where belief began.</div>
+      </div>
+      <div class="b-glow"></div>
+    </div>
+    <div class="frankl">
+      <p>"Between stimulus and response there is a space. In that space is our power to choose." — Viktor Frankl</p>
+    </div>
+  </div>
+
+  <!-- S13: Genesis Point -->
+  <div class="slide" id="s13" style="align-items:center;justify-content:center;">
+    <div class="gen-ring" style="width:92%;height:88%;top:6%;left:4%;animation-delay:0s;"></div>
+    <div class="gen-ring" style="width:76%;height:72%;top:14%;left:12%;animation-delay:.7s;"></div>
+    <div class="gen-ring" style="width:60%;height:56%;top:22%;left:20%;animation-delay:1.4s;"></div>
+    <div class="gen-ring" style="width:44%;height:40%;top:30%;left:28%;animation-delay:2.1s;"></div>
+    <div class="gen-ring" style="width:28%;height:24%;top:38%;left:36%;animation-delay:2.8s;"></div>
+    <div class="gen-center">
+      <div class="gen-glow"></div>
+      <div class="gen-title">The <em>Genesis</em></div>
+      <div class="gen-rule"></div>
+      <div class="gen-sub">The moment of origin</div>
+      <div class="gen-quote">"The wound is where the light enters."</div>
+    </div>
+  </div>
+
+  <!-- S14: Ideal Grid -->
+  <div class="slide" id="s14" style="align-items:center;justify-content:center;">
+    <div class="ideal-scene">
+      <div class="ideal-half ideal-half-left">
+        <div class="ideal-half-lbl">Current — Unconscious</div>
+        <div class="ideal-half-title">The Grid Today</div>
+        <div class="mini-g">
+          <div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div>
+          <div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div>
+          <div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div>
+          <div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div>
+        </div>
+      </div>
+      <div class="ideal-div"><div class="ideal-arrow">→</div></div>
+      <div class="ideal-half ideal-half-right">
+        <div class="ideal-half-lbl">Ideal — Consciously Chosen</div>
+        <div class="ideal-half-title">The <em>Ideal</em> Grid</div>
+        <div class="mini-g">
+          <div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div>
+          <div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div>
+          <div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div>
+          <div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div><div class="m-cell"><div class="m-dot"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">← → arrow keys to navigate</div>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <span class="ninfo nname" id="nname">The Four Intelligences</span>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <button class="nbtn" id="pbtn" onclick="go(-1)" disabled>← Prev</button>
+    <div class="ndots" id="ndots"></div>
+    <button class="nbtn" id="nbtn" onclick="go(1)">Next →</button>
+  </div>
+  <span class="ninfo ncnt" id="ncnt">01 / 14</span>
+</div>
+</div>
+
+<script>
+const TOTAL = 14;
+const names = [
+  'The Four Intelligences','The Grid — Operating System',
+  'Intelligence: Intellectual','Intelligence: Emotional',
+  'Intelligence: Spiritual','Intelligence: Physical',
+  'OS: Target','OS: Values','OS: How To Get There',
+  'The Prism — Full 3D Matrix','The Powering Force',
+  'The Corridor — Belief & Genesis','The Genesis Point','The Transformation'
+];
+const bgCls  = ['bg-eggshell','bg-eggshell','bg-forest','bg-forest','bg-forest','bg-forest','bg-forest','bg-forest','bg-forest','bg-deep','bg-deep','bg-deep','bg-deep','bg-deep'];
+const tagCls = ['tag-lt','tag-lt','tag-dk','tag-dk','tag-dk','tag-dk','tag-dk','tag-dk','tag-dk','tag-dk','tag-dk','tag-dk','tag-dk','tag-dk'];
+const numCls = ['slide-num-lt','slide-num-lt','slide-num-dk','slide-num-dk','slide-num-dk','slide-num-dk','slide-num-dk','slide-num-dk','slide-num-dk','slide-num-dk','slide-num-dk','slide-num-dk','slide-num-dk','slide-num-dk'];
+const wmCls  = ['wm-lt','wm-lt','wm-dk','wm-dk','wm-dk','wm-dk','wm-dk','wm-dk','wm-dk','wm-dk','wm-dk','wm-dk','wm-dk','wm-dk'];
+
+let cur = 0;
+const bg  = document.getElementById('bg');
+const wm  = document.getElementById('wm');
+const tag = document.getElementById('tag');
+const snum= document.getElementById('snum');
+const dots= document.getElementById('ndots');
+
+for(let i=0;i<TOTAL;i++){
+  const d=document.createElement('div');
+  d.className='ndot'+(i===0?' on':'');
+  d.onclick=()=>goTo(i);
+  dots.appendChild(d);
+}
+
+function goTo(n){
+  document.getElementById('s'+(cur+1)).classList.remove('active');
+  dots.children[cur].classList.remove('on');
+  cur=n;
+  bg.className   ='bg '+bgCls[cur];
+  wm.className   ='wm '+wmCls[cur];
+  tag.className  ='tag '+tagCls[cur];
+  snum.className ='slide-num '+numCls[cur];
+  tag.textContent =names[cur];
+  snum.textContent=String(cur+1).padStart(2,'0')+' / '+String(TOTAL).padStart(2,'0');
+  document.getElementById('nname').textContent=names[cur];
+  document.getElementById('ncnt').textContent =String(cur+1).padStart(2,'0')+' / '+String(TOTAL).padStart(2,'0');
+  document.getElementById('s'+(cur+1)).classList.add('active');
+  dots.children[cur].classList.add('on');
+  document.getElementById('pbtn').disabled=cur===0;
+  document.getElementById('nbtn').disabled=cur===TOTAL-1;
+  if(cur===9){
+    const p=document.getElementById('prism3d');
+    p.classList.remove('animate');
+    requestAnimationFrame(()=>{ void p.offsetWidth; p.classList.add('animate'); });
+  }
+}
+function go(d){ goTo(Math.max(0,Math.min(TOTAL-1,cur+d))); }
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ') go(1);
+  if(e.key==='ArrowLeft') go(-1);
+});
+</script>
+</body>
+</html>
